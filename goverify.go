@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"processing/filehash"
 	//  "path"
 	"fmt"
 	"os"
@@ -24,6 +25,7 @@ func main() {
 			fmt.Println("Is it absolute? ")
 			fmt.Println(filepath.IsAbs(path))
 		}
+		data := filehash.LoadFile(path)
 	}
 }
 
