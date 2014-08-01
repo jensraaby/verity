@@ -30,10 +30,15 @@ func main() {
 		if exists(path) {
 			fmt.Println("Is it absolute? ")
 			fmt.Println(filepath.IsAbs(path))
-
+			fmt.Println("Hash:", hashFile(path))
 		}
 		//data := filehash.LoadFile(path)
 	}
+}
+func hashFile(path string) *FileHash {
+	//h := &FileHash{}
+	h := getHash(path)
+	return h
 }
 
 //TODO: check there is no better way to do this

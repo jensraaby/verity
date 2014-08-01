@@ -37,8 +37,11 @@ func LoadFile(file string) []byte {
 	return data
 }
 
+/*
+   getHash(filepath)
+   Returns a filehash struct with the correct MD5 and mtime for the filepath
+*/
 func getHash(file string) *FileHash {
-	// load the file, call md5
 	h := new(FileHash)
 
 	f, err := os.Open(file)
@@ -58,6 +61,7 @@ func getHash(file string) *FileHash {
 	}
 	h.mtime = st.ModTime()
 
-	// do the hashing
+	fmt.Println("Time:", h.mtime)
+	fmt.Println("MD5:", h.md5sum)
 	return h
 }
