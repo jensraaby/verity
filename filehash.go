@@ -3,17 +3,18 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
-	"hash"
+	"io"
 	"os"
-	"strings"
 	"time"
 )
 
+// Structure to represent the hash and last mod time of a file
 type FileHash struct {
-	md5sum hash.Hash
+	md5sum [16]byte
 	mtime  time.Time
 }
 
+// Load a file from a path into a byte slice
 func LoadFile(file string) []byte {
 	// we have already checked that the file exists, but handle it here too
 	f, err := os.Open(file)
@@ -21,6 +22,7 @@ func LoadFile(file string) []byte {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(-1)
 	}
+
 	s, err := os.Stat(file)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
@@ -39,20 +41,23 @@ func getHash(file string) *FileHash {
 	// load the file, call md5
 	h := new(FileHash)
 
+	f, err := os.Open(file)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+	}
 	hasher := md5.New()
-	var asbytes []byte
-	asbytes = strings.Index(file)
-	fmt.Println(hash.Sum(file))
+	io.Copy(hasher, f)
+
+	h.md5sum = md5.Sum(nil)
 
 	// use OS to get modification time
-	f, err := os.Stat(file)
+	st, err := os.Stat(file)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error getting file details for file: %s \n", file)
 		os.Exit(-1)
 	}
-	h.mtime = f.ModTime()
+	h.mtime = st.ModTime()
 
 	// do the hashing
-	h.md5sum = hash.Sum(asbytes)
 	return h
 }
