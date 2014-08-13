@@ -38,7 +38,7 @@ func main() {
 	switch mode {
 	case "hash":
 		fmt.Println("Let's hash!")
-		hashing.DirHash(path)
+		hashing.HashDir(path)
 	case "check":
 		fmt.Println("Not ready!")
 	default:
