@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
-)
 
-const (
-	ignoredir string = ".git"
+	"github.com/jensraaby/goverify/hashing"
 )
 
 // todo: create arguments here using flags package
@@ -25,24 +22,57 @@ func main() {
 	//fmt.Println("dest arg:", *dest)
 
 	if len(args) != 2 {
-		fmt.Fprintf(os.Stderr, "Usage: %s ORIGIN DESTINATION \n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s (hash|check) PATH \n", os.Args[0])
 		os.Exit(-1)
 	}
 
-	// run through the args..
-	for _, path := range args {
-		fmt.Println("Testing " + path)
-		if exists(path) {
-			fmt.Println("Is it absolute? ")
-			fmt.Println(filepath.IsAbs(path))
-			// fmt.Println("Hash:", hashFile(path))
-			fmt.Println("JPR: Passing to walker")
-			printStuff(path)
+	mode := args[0]
+	fmt.Println("GoVerify: performing operation:", mode)
 
-		}
-		//data := filehash.LoadFile(path)
+	path, err := checkPath(args[1])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Invalid path. Must be absolute or relative path to a directory.\n", path)
+		fmt.Fprintf(os.Stderr, "Detail: %s  \n", err)
+	}
+
+	switch mode {
+	case "hash":
+		fmt.Println("Let's hash!")
+		hashing.DirHash(path)
+	case "check":
+		fmt.Println("Not ready!")
+	default:
+		fmt.Fprintf(os.Stderr, "Invalid operation: %s \n", mode)
 	}
 }
+
+func checkPath(path string) (safePath string, err error) {
+	safePath = filepath.Clean(path)
+	s, err := os.Stat(path)
+	// Print error with path information
+	if e, ok := err.(*os.PathError); ok {
+		fmt.Println("Error:", e)
+		return
+	}
+	if os.IsNotExist(err) {
+		//TODO Generate error for nonexisting
+		err = err.(*os.PathError)
+		return
+	}
+	if !s.IsDir() {
+		fmt.Println("Argh!")
+		// VerifyError{"checkPath", path, err}
+		e := fmt.Errorf("Not a directory: %s", path)
+		// myerror := (&os.PathError{"Read", path, errors.New("Not a directory")})
+		//err = myerror.(*os.PathError)
+		// err = e.(*os.PathError)
+		err = e
+		return
+	}
+	fmt.Println(s.Name(), s.ModTime(), s.IsDir())
+	return
+}
+
 func hashFile(path string) *FileHash {
 	//h := &FileHash{}
 	h := getHash(path)
@@ -65,17 +95,17 @@ func exists(path string) bool {
 func mtimePrinter(path string, info os.FileInfo, err error) error {
 	// there is a special error SkipDir we can use to avoid expanding dirs
 
-	if bytes.HasPrefix([]byte(path), []byte(ignoredir)) {
-		fmt.Println("WARNING: Path skipping, has ignoredir as prefix")
-		fmt.Println("Ignoredir:", ignoredir)
-		return filepath.SkipDir
-	}
+	// if bytes.HasPrefix([]byte(path), []byte(ignoredir)) {
+	// 	fmt.Println("WARNING: Path skipping, has ignoredir as prefix")
+	// 	fmt.Println("Ignoredir:", ignoredir)
+	// 	return filepath.SkipDir
+	// }
 	f, err := os.Stat(path)
 	if err != nil {
 		fmt.Println("Error stat'ing path,", path)
 	}
 
-	fmt.Println("Path", path, "Modification time:,", f.ModTime())
+	fmt.Println("Path", path, "Modification time:", f.ModTime())
 	return nil
 }
 
