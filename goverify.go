@@ -60,7 +60,6 @@ func checkPath(path string) (safePath string, err error) {
 		return
 	}
 	if !s.IsDir() {
-		fmt.Println("Argh!")
 		// VerifyError{"checkPath", path, err}
 		e := fmt.Errorf("Not a directory: %s", path)
 		// myerror := (&os.PathError{"Read", path, errors.New("Not a directory")})
@@ -69,7 +68,6 @@ func checkPath(path string) (safePath string, err error) {
 		err = e
 		return
 	}
-	fmt.Println(s.Name(), s.ModTime(), s.IsDir())
 	return
 }
 
