@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/jensraaby/goverify/hashing"
 )
@@ -56,32 +57,22 @@ func checkPath(path string) (safePath string, err error) {
 	}
 	if os.IsNotExist(err) {
 		//TODO Generate error for nonexisting
+		// This is a type assertion. It allows us to assert that a variable is
+		// not nil and the value stored within it is of a certain type. This is
+		// how you do dynamic typing/checking of types
 		err = err.(*os.PathError)
+		//err = &GVError{"Check path", time.Now(), "Path does not exist"}
 		return
 	}
 	if !s.IsDir() {
 		// VerifyError{"checkPath", path, err}
-		e := fmt.Errorf("Not a directory: %s", path)
+		// e := fmt.Errorf("Not a directory: %s", path)
 		// myerror := (&os.PathError{"Read", path, errors.New("Not a directory")})
 		//err = myerror.(*os.PathError)
 		// err = e.(*os.PathError)
+		e := &GVError{"Check path", time.Now(), "Not a directory"}
 		err = e
 		return
 	}
 	return
-}
-
-func hashFile(path string) *FileHash {
-	//h := &FileHash{}
-	h := getHash(path)
-	return h
-}
-
-//TODO: check there is no better way to do this
-func exists(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		fmt.Printf("no such file or directory: %s", path)
-		return false
-	}
-	return true
 }

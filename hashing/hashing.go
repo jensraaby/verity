@@ -3,6 +3,12 @@
 // directory
 package hashing
 
+// This file handles the hashing operations.
+// 1. Start with a path as input
+// 2. Pass to a walker which sends all files to a channel
+// 3. Channel receiver puts files in a datastructure
+// 4. Datastructure is passed to a queue to process the hashes
+
 import (
 	"crypto/sha1"
 	"encoding/json"
@@ -27,9 +33,12 @@ type fileHash struct {
 	Modtime  time.Time
 	CheckSum string
 }
+
+// A DirHash represents all the files in a dir (does not include subdirs)
 type DirHash struct {
-	path  string
-	files []fileHash
+	Path      string
+	LastCheck time.Time
+	Files     []FileHash
 }
 
 // HashDir takes a path (assuming it is correct!) and begins the process of
