@@ -11,13 +11,13 @@ package hashing
 
 import (
 	"crypto/sha1"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -27,8 +27,8 @@ import (
 // 3. Channel receiver puts files in a datastructure
 // 4. Datastructure is passed to a queue to process the hashes
 
-// fileHash is the internal representation of a filehash
-type fileHash struct {
+// FileHash is the internal representation of a filehash
+type FileHash struct {
 	Name     string
 	Modtime  time.Time
 	CheckSum string
@@ -44,30 +44,26 @@ type DirHash struct {
 // HashDir takes a path (assuming it is correct!) and begins the process of
 // hashing the files within
 func HashDir(path string) error {
-
-	h, err := hashFile("hashing/hashing.go")
+	// this is just a dumb printer
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path)
+		if info.IsDir() {
+			fmt.Println("Is a dir!")
+			if strings.HasPrefix(path, ".git") {
+				fmt.Println("It's a git")
+			}
+		}
+		return nil
+	})
+	// h, err := hashFile("hashing/hashing.go")
 	if err != nil {
 		fmt.Println(err)
 	}
-	// print hash as hex encoded
-	// fmt.Printf("%x", h)
-	// alternative:
-	// fmt.Println("Checksum as string:",
-	// 	hex.EncodeToString(h.checkSum))
-
-	fmt.Println("Did the hashing for", h.Name, h.Modtime)
-	fmt.Println(h)
-	j, err := json.Marshal(h)
-	if err != nil {
-		fmt.Println("JSON error", err)
-	}
-	// fmt.Println("JSON encoded:", j)
-	os.Stdout.Write(j)
 	return nil
 }
 
 // This function will return the SHA1sum of a file
-func hashFile(fpath string) (hash fileHash, err error) {
+func hashFile(fpath string) (hash FileHash, err error) {
 	// a hash.Hash implementer is a Writer (you can send it a stream of bytes)
 	// It has a Sum method which takes the current stream and returns the
 	// result of the hash
@@ -96,7 +92,7 @@ func hashFile(fpath string) (hash fileHash, err error) {
 	// I have no idea why you need to pass in nil here:
 	checkSum := hasher.Sum(nil)
 
-	hash = fileHash{
+	hash = FileHash{
 		Name:     path.Base(fpath),
 		Modtime:  mtime,
 		CheckSum: fmt.Sprintf("%x", checkSum),
