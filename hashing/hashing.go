@@ -48,9 +48,12 @@ func HashDir(path string) error {
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		fmt.Println(path)
 		if info.IsDir() {
-			fmt.Println("Is a dir!")
+			fmt.Println("It's a dir!")
 			if strings.HasPrefix(path, ".git") {
 				fmt.Println("It's a git")
+			}
+			if strings.HasPrefix(path, ".") {
+				fmt.Println("starts with dot, hmmmm", path)
 			}
 		}
 		return nil
