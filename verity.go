@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -39,12 +40,19 @@ func main() {
 	switch mode {
 	case "hash":
 		fmt.Println("Let's hash!")
-		hashing.HashDir(path)
+		// hashing.HashDir(path)
+		results, err := hashing.ProcessAllParallel(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(results)
+
 	case "check":
 		fmt.Println("Not ready!")
 	default:
 		fmt.Fprintf(os.Stderr, "Invalid operation: %s \n", mode)
 	}
+
 }
 
 func checkPath(path string) (safePath string, err error) {

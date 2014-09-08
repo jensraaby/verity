@@ -28,8 +28,10 @@ import (
 // 4. Datastructure is passed to a queue to process the hashes
 
 // FileHash is the internal representation of a filehash
+// It is serialisable to JSON - we use string for the checksum
 type FileHash struct {
 	Name     string
+	Size     int
 	Modtime  time.Time
 	CheckSum string
 }
@@ -41,9 +43,16 @@ type DirHash struct {
 	Files     []FileHash
 }
 
+func TraverseDir(initialpath string, dirqueue chan string) {
+	// given a dir, walk through and find dirs to scan (releasing these on the
+	// channel
+
+}
+
 // HashDir takes a path (assuming it is correct!) and begins the process of
 // hashing the files within
 func HashDir(path string) error {
+
 	// this is just a dumb printer
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		fmt.Println(path)

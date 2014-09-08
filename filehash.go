@@ -15,6 +15,7 @@ type FileHash struct {
 }
 
 // Load a file from a path into a byte slice
+// LoadFile will quit the program if it fails!
 func LoadFile(file string) []byte {
 	// we have already checked that the file exists, but handle it here too
 	f, err := os.Open(file)
